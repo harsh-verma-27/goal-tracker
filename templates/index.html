@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="text-center mt-5">
+    <h1 class="display-4 fw-bold">Master Your Goals</h1>
+    <p class="lead text-muted mb-4">
+        Simple, effective goal tracking to help you stay organized and get things done.
+    </p>
+
+    {% if current_user.is_authenticated %}
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg px-4 gap-3">Go to Dashboard</a>
+        </div>
+    {% else %}
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <a href="{{ url_for('signup') }}" class="btn btn-primary btn-lg px-4 gap-3">Get Started</a>
+            <a href="{{ url_for('login') }}" class="btn btn-outline-secondary btn-lg px-4">Login</a>
+        </div>
+    {% endif %}
+
+    <div class="row mt-5 pt-5 text-start">
+        <div class="col-md-4">
+            <h4>📅 Set Deadlines</h4>
+            <p>Never miss a target. Set exact dates and times for your goals and track overdue items instantly.</p>
+        </div>
+        <div class="col-md-4">
+            <h4>📂 Categories</h4>
+            <p>Organize your life into buckets like Work, Health, and Personal. Filter your view to focus on what matters.</p>
+        </div>
+        <div class="col-md-4">
+            <h4>📊 Track Progress</h4>
+            <p>Move goals from Pending to In Progress to Completed. Archive your wins and build your history.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dashboard-container">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Welcome, {{ current_user.username }}!</h1>
+        <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#categoryManager">
+            Manage Categories
+        </button>
+    </div>
+
+    <div class="collapse mb-4" id="categoryManager">
+        <div class="card card-body bg-light">
+            <h5>Add New Category</h5>
+            <form action="{{ url_for('create_category') }}" method="POST" class="d-flex gap-2">
+                <input type="text" name="category_name" class="form-control" placeholder="e.g., Work, Health">
+                <button type="submit" class="btn btn-primary">Create</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Add a New Goal</h5>
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('dashboard') }}" method="POST" class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Goal Title</label>
+                    <input type="text" name="goal_title" class="form-control" placeholder="Enter goal..." required>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label">Category</label>
+                    <select name="category_id" class="form-select">
+                        <option value="">-- No Category --</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Description</label>
+                    <input type="text" name="description" class="form-control" placeholder="Optional details...">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Deadline</label>
+                    <input type="datetime-local" name="deadline" class="form-control">
+                </div>
+
+                <div class="col-12">
+                    <button type="submit" class="btn btn-success w-100">Add Goal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mb-4 bg-light">
+        <div class="card-body py-2"> <form action="{{ url_for('dashboard') }}" method="GET" class="row g-2 align-items-center">
+                <div class="col-md-auto"><strong>Filter:</strong></div>
+                
+                <div class="col-md-3">
+                    <select name="category_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}" {% if selected_category == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">All Statuses</option>
+                        <option value="overdue" {% if selected_status == 'overdue' %}selected{% endif %}>Overdue</option>
+                        <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="in_progress" {% if selected_status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                        <option value="completed" {% if selected_status == 'completed' %}selected{% endif %}>Completed</option>
+                        <option value="archived" {% if selected_status == 'archived' %}selected{% endif %}>Archived</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <select name="sort_by" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="deadline_asc" {% if sort_by == 'deadline_asc' %}selected{% endif %}>Deadline (Earliest)</option>
+                        <option value="deadline_desc" {% if sort_by == 'deadline_desc' %}selected{% endif %}>Deadline (Latest)</option>
+                        <option value="created_desc" {% if sort_by == 'created_desc' %}selected{% endif %}>Newest Created</option>
+                    </select>
+                </div>
+
+                <div class="col">
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="q" class="form-control" placeholder="Search..." value="{{ search_query if search_query else '' }}">
+                        <button class="btn btn-outline-secondary" type="submit">Go</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <h3 class="mb-3">Your Goals <span class="badge bg-secondary">{{ pagination.total }}</span></h3>
+    
+    {% if goals %}
+        <div class="list-group">
+            {% for goal in goals %}
+                <div class="list-group-item list-group-item-action 
+                    {% if goal.deadline and goal.deadline < now and goal.status != 'completed' %}border-danger border-start border-5{% endif %}">
+                    
+                    <div class="d-flex w-100 justify-content-between align-items-center">
+                        <h5 class="mb-1">
+                            {{ goal.title }}
+                            {% if goal.category %}
+                                <span class="badge bg-info text-dark">{{ goal.category.name }}</span>
+                            {% endif %}
+                        </h5>
+                        <small class="text-muted">
+                            {% if goal.deadline %} Due: {{ goal.deadline | to_ist }} {% else %} No Deadline {% endif %}
+                        </small>
+                    </div>
+
+                    <p class="mb-1">{{ goal.description }}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <div>
+                            {% if goal.deadline and goal.deadline < now and goal.status != 'completed' %}
+                                <span class="badge bg-danger">Overdue</span>
+                            {% else %}
+                                <span class="badge 
+                                    {% if goal.status == 'completed' %}bg-success
+                                    {% elif goal.status == 'in_progress' %}bg-primary
+                                    {% else %}bg-warning text-dark{% endif %}">
+                                    {{ goal.status|replace('_', ' ')|title }}
+                                </span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="btn-group btn-group-sm">
+                            {% if goal.status == 'pending' %}
+                                <a href="{{ url_for('advance_status', goal_id=goal.id) }}" class="btn btn-outline-success">Start</a>
+                            {% elif goal.status == 'in_progress' %}
+                                <a href="{{ url_for('advance_status', goal_id=goal.id) }}" class="btn btn-outline-success">Finish</a>
+                                <a href="{{ url_for('reset_status', goal_id=goal.id) }}" class="btn btn-outline-warning">Pause</a>
+                            {% elif goal.status == 'completed' %}
+                                <a href="{{ url_for('advance_status', goal_id=goal.id) }}" class="btn btn-outline-secondary">Archive</a>
+                            {% endif %}
+                            <a href="{{ url_for('edit_goal', goal_id=goal.id) }}" class="btn btn-outline-secondary">Edit</a>
+                            <a href="{{ url_for('delete_goal', goal_id=goal.id) }}" class="btn btn-outline-danger">Trash</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('dashboard', page=pagination.prev_num, category_id=selected_category, status=selected_status, q=search_query, sort_by=sort_by) }}">Previous</a>
+                </li>
+                <li class="page-item disabled"><span class="page-link">Page {{ pagination.page }} of {{ pagination.pages }}</span></li>
+                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('dashboard', page=pagination.next_num, category_id=selected_category, status=selected_status, q=search_query, sort_by=sort_by) }}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    
+    {% else %}
+        <div class="alert alert-info text-center">No goals found! Try adding one above.</div>
+    {% endif %}
+
+</div>
+{% endblock %}
