@@ -40,11 +40,11 @@ This project documents my transition from writing "script-like" web apps to buil
 
 ### **The Legacy Interface (v1)**
 *Basic CRUD with full reloads.*
-![Legacy V1 UI](v1.png)
+![Legacy V1 UI](screenshots/v1.png)
 
 ### **The New Dashboard (v2)**
 *Dynamic, API-driven interface with Calendar and Analytics.*
-![New V2 Calendar](v2.png)
+![New V2 Calendar](screenshots/v2.png)
 
 ---
 
