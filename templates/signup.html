@@ -7,7 +7,9 @@
                 <h3>Create Account</h3>
             </div>
             <div class="card-body p-4">
-                <form action="{{ url_for('signup') }}" method="POST">
+                <form action="{{ url_for('auth.signup') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <input type="hidden" id="timezone_input" name="timezone" value="UTC">
                     <div class="mb-3">
                         <label class="form-label">Choose a Username</label>
                         <input type="text" name="username" class="form-control" required>
@@ -18,9 +20,14 @@
                     </div>
                     <button type="submit" class="btn btn-success w-100">Sign Up</button>
                 </form>
+
+                <script>
+                    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                    document.getElementById('timezone_input').value = userTimezone;
+                </script>
             </div>
             <div class="card-footer text-center">
-                <small>Already have an account? <a href="{{ url_for('login') }}">Login</a></small>
+                <small>Already have an account? <a href="{{ url_for('auth.login') }}">Login</a></small>
             </div>
         </div>
     </div>
