@@ -84,7 +84,7 @@ Built a data visualization layer to track user productivity, calculating "Win Ra
 
 1.  **Clone the repository**
     ```bash
-    git clone [https://github.com/harsh-verma-27/goal-tracker](https://github.com/harsh-verma-27/goal-tracker)
+    git clone https://github.com/harsh-verma-27/goal-tracker
     cd goal-tracker
     ```
 
