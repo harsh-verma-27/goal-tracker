@@ -4,7 +4,7 @@
 
 GoalTracker v2.0 is the result of a complete codebase overhaul. The original project (v1) was a standard server-side rendered application. V2 focuses on **modernizing the architecture**: decoupling the frontend, implementing a REST API, and introducing Separation of Concerns (SoC) via Flask Blueprints.
 
-🔗 **Live Demo:** [INSERT YOUR RENDER LINK HERE]
+🔗 **Live Demo:** https://goal-tracker-vyik.onrender.com
 
 ---
 
